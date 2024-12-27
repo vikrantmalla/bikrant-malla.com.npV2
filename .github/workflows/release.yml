@@ -1,4 +1,4 @@
-name: Portfolio Website Build and Release Pipeline
+name: Portfolio Website CI/CD Pipeline
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  build-and-archive:
-    name: Build and Archive Web Application
+  setup-and-test:
+    name: Setup and Test Web Application
     runs-on: ubuntu-latest
 
     steps:
@@ -22,25 +22,16 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Build static website
-        run: bun run build
+      - name: Run linting for server
+        run: bun run lint:server
 
-      - name: Archive Release
-        uses: thedoctor0/zip-release@0.7.5
-        with:
-          type: "zip"
-          filename: "release.zip"
-
-      - name: Upload Release Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-archive
-          path: release.zip
+      - name: Check formatting
+        run: bun run format:check
 
   release:
     name: Release to GitHub
     runs-on: ubuntu-latest
-    needs: build-and-archive
+    needs: setup-and-test
 
     steps:
       - name: Checkout code
@@ -50,11 +41,6 @@ jobs:
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
-
-      - name: Download Release Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: release-archive
 
       - name: Release
         env:
