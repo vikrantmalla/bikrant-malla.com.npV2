@@ -6,6 +6,6 @@ import { exampleRoute } from "./routes/example";
 const app = new Hono();
 
 app.use("*", logger());
-app.route("/api/example", exampleRoute);
+app.basePath("/api").route("/example", exampleRoute);
 
 export default app;
