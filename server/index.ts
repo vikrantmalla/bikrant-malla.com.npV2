@@ -1,46 +1,20 @@
-import { Hono } from "hono";
-import { HTTPException } from "hono/http-exception";
+import { z } from "zod";
 
-import { Enviroment, ErrorType } from "@/shared/enum";
-import type { ErrorResponse } from "@/shared/types";
+import app from "./app";
 
-const app = new Hono();
+const ServeEnv = z.object({
+  PORT: z
+    .string()
+    .regex(/^\d+$/, "Port must be a numeric string")
+    .default("3000")
+    .transform(Number),
+});
+const ProcessEnv = ServeEnv.parse(process.env);
 
-app.get("/", (c) => {
-  return c.text("Hello Hono!");
+const server = Bun.serve({
+  port: ProcessEnv.PORT,
+  hostname: "0.0.0.0",
+  fetch: app.fetch,
 });
 
-app.onError((err, c) => {
-  if (err instanceof HTTPException) {
-    return (
-      err.res ??
-      c.json<ErrorResponse>(
-        {
-          success: false,
-          error: err.message,
-          isFormError:
-            err.cause && typeof err.cause === "object" && "form" in err.cause
-              ? err.cause.form === true
-              : false,
-        },
-        err.status ?? 500,
-      )
-    );
-  }
-
-  // Handle generic errors
-  const errorMessage =
-    process.env.NODE_ENV === Enviroment.PRODUCTION
-      ? ErrorType.InternalServerError
-      : err.stack || err.message;
-
-  return c.json<ErrorResponse>(
-    {
-      success: false,
-      error: errorMessage,
-    },
-    500,
-  );
-});
-
-export default app;
+console.log("server running", server.port);
