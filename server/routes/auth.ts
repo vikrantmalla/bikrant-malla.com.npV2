@@ -6,7 +6,7 @@ import {
   handleLogout,
   handleProfileInfo,
   handleRegister,
-} from "@/handler/authHandler";
+} from "@/handlers/authHandlers";
 
 import { PATHS } from "@/shared/constant/paths";
 

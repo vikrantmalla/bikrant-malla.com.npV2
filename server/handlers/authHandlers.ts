@@ -1,8 +1,9 @@
-// handlers/authHandlers.ts
-
 import type { Context } from "hono";
 
-import { sessionManager } from "../authConfig/Kinde";
+import { db } from "@/adapter";
+import { usersTable } from "@/db/schemas/auth";
+
+import { saveOrUpdateUser, sessionManager } from "../authConfig/Kinde";
 import { kindeClient } from "../utils/KindeConfig";
 
 type AuthHandler = (c: Context) => Promise<Response>;
@@ -20,6 +21,7 @@ export const handleRegister: AuthHandler = async (c) => {
 export const handleCallback: AuthHandler = async (c) => {
   const url = new URL(c.req.url);
   await kindeClient.handleRedirectToApp(sessionManager(c), url);
+
   return c.redirect("/");
 };
 
