@@ -2,6 +2,8 @@ import { type Context } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
 
+import { db } from "@/adapter";
+import { usersTable } from "@/db/schemas/auth";
 import { kindeClient } from "@/utils/KindeConfig";
 import {
   type SessionManager,
@@ -60,3 +62,43 @@ export const getUser = createMiddleware<Env>(async (c, next) => {
     return c.json({ error: ErrorType.Unauthorized }, 401);
   }
 });
+
+type UserProfile = {
+  kindeId: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  picture: string | null;
+  updatedAt: number;
+};
+
+export const saveOrUpdateUser = async (user: UserProfile): Promise<void> => {
+  console.log(user)
+  const { kindeId, email, firstName, lastName, updatedAt } = user;
+
+    // Ensure updatedAt is a valid Unix timestamp
+    const updatedAtDate = updatedAt ? new Date(updatedAt * 1000) : new Date();
+
+    if (isNaN(updatedAtDate.getTime())) {
+      throw new Error("Invalid updatedAt timestamp.");
+    }
+
+  await db
+    .insert(usersTable)
+    .values({
+      kindeId,
+      email,
+      firstName,
+      lastName,
+      updatedAt: updatedAtDate,
+    })
+    .onConflictDoUpdate({
+      target: usersTable.kindeId, // Update existing records based on Kinde ID
+      set: {
+        email,
+        firstName,
+        lastName,
+        updatedAt: updatedAtDate,
+      },
+    });
+};
