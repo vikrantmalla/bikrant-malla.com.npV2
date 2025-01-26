@@ -5,5 +5,5 @@ export const PATHS = {
   LOGIN: "/login",
   LOGOUT: "/logout",
   REGISTER: "/register",
-  PROFILE_INFO: "/profile-info"
+  PROFILE_INFO: "/profile-info",
 };

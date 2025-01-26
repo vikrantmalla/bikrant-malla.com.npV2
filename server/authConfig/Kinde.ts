@@ -73,15 +73,14 @@ type UserProfile = {
 };
 
 export const saveOrUpdateUser = async (user: UserProfile): Promise<void> => {
-  console.log(user)
   const { kindeId, email, firstName, lastName, updatedAt } = user;
 
-    // Ensure updatedAt is a valid Unix timestamp
-    const updatedAtDate = updatedAt ? new Date(updatedAt * 1000) : new Date();
+  // Ensure updatedAt is a valid Unix timestamp
+  const updatedAtDate = updatedAt ? new Date(updatedAt * 1000) : new Date();
 
-    if (isNaN(updatedAtDate.getTime())) {
-      throw new Error("Invalid updatedAt timestamp.");
-    }
+  if (isNaN(updatedAtDate.getTime())) {
+    throw new Error("Invalid updatedAt timestamp.");
+  }
 
   await db
     .insert(usersTable)
