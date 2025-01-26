@@ -1,9 +1,6 @@
 import type { Context } from "hono";
 
-import { db } from "@/adapter";
-import { usersTable } from "@/db/schemas/auth";
-
-import { saveOrUpdateUser, sessionManager } from "../authConfig/Kinde";
+import { sessionManager } from "../authConfig/Kinde";
 import { kindeClient } from "../utils/KindeConfig";
 
 type AuthHandler = (c: Context) => Promise<Response>;
